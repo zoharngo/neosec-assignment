@@ -83,11 +83,11 @@ function EventTimeLine({ list, loadMore, hasMore, height }) {
       cacheStopIndex.current = stopIndex;
     }
   };
+
+
   const _onScroll = (direction) => {
     const scrollFrom = selectedRowIndex ? selectedRowIndex : 0;
-    console.log('direction', direction);
-    console.log('scrollFrom', scrollFrom);
-
+    //TODO: Cover up/down actions senarios 
     if (direction === 'down') {
       setSelectedRowIndex(scrollFrom + 1);
     } else {
