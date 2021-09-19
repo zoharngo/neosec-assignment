@@ -19,17 +19,19 @@ function App() {
   }, [fetchItems]);
 
   return (
-    <Container sx={{ position: 'relative', top: '90px', fontSizeAdjust: 'from-font' }} component='section'  maxWidth="sm">
-      {list.length > 0 && (
-        <EventTimeLine
-          height={450}
-          list={list}
-          loadMore={() => {
-            setPage((prevPage) => prevPage + 1);
-          }}
-          hasMore={list.length < totaltemCount.current}
-        />
-      )}
+    <Container
+      sx={{ position: 'relative', top: '90px', fontSizeAdjust: 'from-font' }}
+      component='section'
+      maxWidth='sm'
+    >
+      <EventTimeLine
+        height={450}
+        list={list}
+        loadMore={() => {
+          setPage((prevPage) => prevPage + 1);
+        }}
+        hasMore={list.length < totaltemCount.current}
+      />
     </Container>
   );
 }

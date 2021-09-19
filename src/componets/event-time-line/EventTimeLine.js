@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { List, AutoSizer } from 'react-virtualized';
-import styles from './EventTimeLine.css';
 import Box from '@mui/material/Box';
-import { CircularProgress, IconButton, Skeleton } from '@mui/material';
+import { CircularProgress, IconButton } from '@mui/material';
 import { ArrowDownward, ArrowUpward } from '@mui/icons-material';
+import './EventTimeLine.css';
 
 const COLOR_MAP = Object.freeze({
   GET: 'red',
@@ -35,10 +35,15 @@ function EventTimeLine({ list, loadMore, hasMore, height }) {
   }, [list.length]);
 
   const _noRowsRenderer = () => {
-    return <div className={styles.noRows}>No rows</div>;
+    return (
+      <Box component='div' className='row'>
+        No events found..
+      </Box>
+    );
   };
-  const _rowRenderer = ({ index, style, isScrolling, key }) => {
-    return !isScrolling ? (
+
+  const _rowRenderer = ({ index, style, key }) => {
+    return !isLoading ? (
       <Box
         component='div'
         className={`row ${index === selectedRowIndex ? 'highlighted' : ''}`}
@@ -69,31 +74,24 @@ function EventTimeLine({ list, loadMore, hasMore, height }) {
           <Box component='span' dangerouslySetInnerHTML={{ __html: list[index].endpoint_path }} />
         </Box>
       </Box>
-    ) : (
-      <Box component='div' key={key} style={style} className='row'>
-        <Skeleton sx={{ width: '80%', height: height / 5 }} animation='pulse' />
-      </Box>
-    );
+    ) : null;
   };
 
   const _onRowsRendered = ({ stopIndex }) => {
     if (hasMore && stopIndex === list.length - 1) {
       setIsLoading(true);
       loadMore();
-      cacheStopIndex.current = stopIndex;
     }
+    cacheStopIndex.current = stopIndex;
   };
 
-
-  const _onScroll = (direction) => {
-    const scrollFrom = selectedRowIndex ? selectedRowIndex : 0;
-    //TODO: Cover up/down actions senarios 
-    if (direction === 'down') {
-      setSelectedRowIndex(scrollFrom + 1);
-    } else {
-      setSelectedRowIndex(scrollFrom - 1);
-    }
+  const _onButtonClick = (direction) => {
+    const scrollFrom = cacheStopIndex.current ? selectedRowIndex : 0;
+    const scrollTo = direction === 'down' ? scrollFrom + 1 : scrollFrom - 1;
+    setScrollToIndex(scrollTo);
+    setSelectedRowIndex(scrollTo > 0 ? scrollTo : 0);
   };
+
   const EventList = () => {
     return (
       <Box component='div' sx={{ textAlign: 'center' }}>
@@ -119,14 +117,16 @@ function EventTimeLine({ list, loadMore, hasMore, height }) {
             <CircularProgress sx={{ position: 'relative', top: '150px' }} />
           )}
         </Box>
-        <Box component='div'>
-          <IconButton color='secondary' aria-label='up' onClick={() => _onScroll('up')}>
-            <ArrowUpward />
-          </IconButton>
-          <IconButton color='primary' aria-label='down' onClick={() => _onScroll('down')}>
-            <ArrowDownward />
-          </IconButton>
-        </Box>
+        {Boolean(list.length) && !isLoading && (
+          <Box component='div'>
+            <IconButton color='secondary' aria-label='up' onClick={() => _onButtonClick('up')}>
+              <ArrowUpward />
+            </IconButton>
+            <IconButton color='primary' aria-label='down' onClick={() => _onButtonClick('down')}>
+              <ArrowDownward />
+            </IconButton>
+          </Box>
+        )}
       </Box>
     );
   };
